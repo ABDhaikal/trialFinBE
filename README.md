@@ -1,248 +1,142 @@
-## 
+# Laundry Web App - Final Project
 
-# creating template express prisma
+## Description
 
-## manual creating template
+Laundry Web App adalah aplikasi e-commerce berbasis web yang memungkinkan customer untuk melakukan layanan laundry tanpa harus datang ke outlet secara langsung. Sistem ini menyediakan fitur pickup dan delivery oleh driver, serta proses laundry yang terorganisir dalam beberapa station (washing, ironing, packing). Aplikasi ini ditujukan untuk diakses oleh 5 jenis pengguna: customer, admin, outlet admin, worker, dan driver.
 
-1. initialize `package json`
-`npm i —y`
-2. install typescript, types/node types/express nodemon ts-node and types/cors -d
-`npm i typescript @types/node @types/express nodemon ts-node @types/cors -d`
-3. install express ,cors ,and prisma
- `npm i express cors dotenv prisma @prisma/client`
-4. initialize tsc
-`tsc —init`
-5. change `tsconfig.json` `outdir`
+## Roles & Responsibilities
 
-```json
-{
-   "compilerOptions": {
-      "target": "es2016",
-      "module": "commonjs",
-      "outDir": "./dist",
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "skipLibCheck": true
-   }
-}
+* **Customer**: Melakukan request pickup, melihat status pesanan, melakukan pembayaran, dan komplain.
+* **Driver**: Mengambil dan mengantar laundry.
+* **Worker**: Melakukan proses pencucian, penyetrikaan, dan pengepakan.
+* **Outlet Admin**: Mengelola order, validasi item laundry, dan permintaan delivery.
+* **Super Admin**: Mengelola data master, outlet, dan seluruh pengguna.
 
-```
+## Main Features
 
-so default `tsconfig.json` should be 
+### Feature 1
 
-```json
-{
-   "compilerOptions": {
-      "target": "es2016",
-      "module": "commonjs",
-      "outDir": "./dist",
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "skipLibCheck": true
-   }
-}
+#### Homepage / Landing Page (20 Points)
 
-```
+* Hero section + carousel promo
+* Navigation bar & Footer
+* Button request pickup
+* Location-based outlet display
 
-1. go to `package.json`  and add comment to run dev run build and run start
+#### User Authentication & Profiles (35 Points)
 
-```
-"scripts": {
-    "build": "tsc",
-    "start": "npm run build && node dist/index.js",
-    "dev": "nodemon src/index.ts"
-  },
-```
+* Registrasi: Email dan Social Login
+* Email verification dan set password
+* Login dan Reset Password
+* Profile: Edit data, ubah password, upload foto profil (max 1MB, .jpg/.jpeg/.png/.gif)
+* Validasi akses berdasarkan status verifikasi
 
-1. create  `src/config/env.ts`
+#### User Address & Cost Calculation (20 Points)
 
-```tsx
-import dotenv from 'dotenv';
+* Multi-address management
+* Pilih alamat untuk pickup
+* Biaya pickup/delivery berdasarkan jarak
 
-dotenv.config();
+#### Outlet Management (15 Points)
 
-export const PORT = process.env.PORT
-```
+* CRUD outlet, lokasi outlet
+* Laundry item management
+* Assign outlet admin, worker, driver
 
-1. create `src/index.ts`
+### Feature 2
 
-```tsx
-import express from "express";
-import { PORT } from "./config/env";
-import { errorMiddleware } from "./middlewares/error.middleware";
-import cors from "cors";
+#### Admin Account Management (10 Points)
 
-// define the express app
-const app = express();
-// app cors
-app.use(cors());
+* Akses khusus untuk admin dashboard
+* CRUD data user (outlet admin, worker, driver)
 
-// define express json for parsing json data
-app.use(express.json());
+#### Report & Analysis (5 Points)
 
-// your routes should be here
+* Laporan income bulanan (per outlet)
 
-// your error middle ware
-app.use(errorMiddleware);
-// listening to the server
-app.listen(PORT, () => {
-   console.log(`Server is running at http://localhost:${PORT}`);
-});
-```
+#### Request Pickup & Tracking (25 Points)
 
-1. initialize prisma
+* Request pickup & delivery
+* Penentuan outlet terdekat secara otomatis
+* Input detail laundry oleh outlet admin
+* Tracking order status
+* Upload bukti pembayaran (1MB max, .jpg/.jpeg/.png)
+* Konfirmasi order manual/otomatis (2x24 jam)
 
-`npx prisma init`
+#### Driver Management (15 Points)
 
-1. setup `prisma/schema.prisma` into default
+* Daftar request pickup/delivery
+* Pengurutan job berdasarkan lokasi terdekat
+* History pickup/delivery
 
-```
-generator client {
-  provider = "prisma-client-js"
-}
+#### Order Management (30 Points)
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
+* View all orders
+* Create order by outlet admin (input total kilo dan quantity item)
+* Worker re-input quantity
+* Request access to outlet admin jika quantity tidak sesuai
+* Tracking job status driver
 
-1. create `src/config/prisma.ts`
+#### Worker Management (5 Points)
 
-```
-import { PrismaClient } from "@prisma/client";
+* Notifikasi job masuk ke setiap station
+* Input ulang item laundry
+* View job history
 
-export default new PrismaClient();
-```
+### Mentor Evaluation (10 Points)
 
-1. create middleware folder and file `src/middlewares/error.middleware.ts`
+* UI tampilan
+* Komunikasi tim
+* Inisiatif
+* Pengembangan fitur
 
-```
-import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../utils/api-error";
+## Order Statuses
 
-export const errorMiddleware = (
-   err: ApiError,
-   _req: Request,
-   res: Response,
-   next: NextFunction
-) => {
-   const status = err.status || 500;
-   const message = err.message || "Something went wrong";
-   res.status(status).send(message);
-};
+* Menunggu Penjemputan Driver
+* Laundry Sedang Menuju Outlet
+* Laundry Telah Sampai Outlet
+* Laundry Sedang Dicuci
+* Laundry Sedang Disetrika
+* Laundry Sedang Di Packing
+* Menunggu Pembayaran
+* Laundry Sedang Dikirim
+* Laundry Telah Diterima Customer
 
-```
+## Technical Requirements
 
-1. create utils folder and file  `src/utils/api-error.ts`
+### Validation
 
-```
-export class ApiError extends Error {
-   status: number;
-   constructor(message: string, status: number = 500) {
-      super(message);
-      this.status = status;
-   }
-}
-```
+* Semua input divalidasi di sisi client dan server
+* Validasi file extension dan ukuran file
+* Approval untuk proses penting (hapus data)
 
-1. add your error middleware to your index.ts so its can be run
+### Pagination, Filtering, Sorting
 
-```tsx
-import express from "express";
-import { PORT } from "./config/env";
-import { errorMiddleware } from "./middlewares/error.middleware";
+* Semua list data (order, user, dll) wajib support fitur ini dan diproses di server
 
-const app = express();
-// your routes should be here
+### Frontend
 
-// your error middle ware
-app.use(errorMiddleware);
+* Responsive (mobile first)
+* Clean UI
+* Penamaan file jelas
+* File .jsx jika mengandung HTML
+* Title & favicon disesuaikan
 
-// listening to the server
-app.listen(PORT, () => {
-   console.log(`Server is running at http://localhost:${PORT}`);
-});
+### Backend
 
-```
+* RESTful API standard
+* Authorization untuk API terbatas role tertentu
+* Clean code:
 
-1. create another template folder
+  * Maks. 200 baris per file
+  * Fungsi maks. 15 baris
+  * Bersihkan log dan code tidak terpakai
 
-```tsx
-mkdir src/controllers
-mkdir src/routes
-mkdir src/types
-mkdir src/services
-mkdir src/validators
-```
+## References
 
-## how to create new model and service
+* API RajaOngkir / alternatif API ongkir
+* OpenCage / API geolocation gratis
 
-1. create your dummy table in `prisma/schema.prisma`
+---
 
-```
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-}
-```
-
-1. create your service file in `src/service/get-users.service.ts`
-
-```
-import prisma from "../config/prisma";
-import { ApiError } from "../utils/api-error";
-
-export const getUsersService = async () => {
-   try {
-      const users = await prisma.user.findMany();
-      return users;
-   } catch (error) {
-      throw new ApiError("Error fetching users", 500);
-   }
-};
-```
-
-1. create controller on `src/controllers/user.controller.ts`
-
-```
-import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../utils/api-error";
-import { getUsersService } from "../services/get-users.service";
-
-export const getUsersController = async (
-   req: Request,
-   res: Response,
-   next: NextFunction
-) => {
-   try {
-      const users = await getUsersService();
-      res.status(200).json(users);
-   } catch (error) {
-      next(new ApiError("Error fetching users", 500));
-   }
-};
-
-```
-
-1. create your routes file on `src/routes/user.router.ts`
-
-```
-import { Router } from "express";
-import { getUsersController } from "../controllers/user.controller";
-
-const router = Router();
-
-// Define the all routes for the user router
-router.get("/", getUsersController);
-export default router;
-```
-
-1. add your router into index.ts
-`app.use("/users", userRouter);`
-2. generate prisma db
-`npx prisma generate`
-3. to run your code you can use `npm run dev` on your terminal
+**Note**: Semua fitur dan implementasi dalam proyek ini dinilai secara kolektif dan wajib dikerjakan agar memperoleh nilai penuh. Pastikan dokumentasi, validasi, dan user experience menjadi prioritas utama selama pengembangan.
